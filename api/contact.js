@@ -4,50 +4,45 @@ const cors = require('cors');
 const nodemailer = require('nodemailer');
 const path = require('path');
 
-// Load environment variables
+// Load environment variables dari folder utama
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// MongoDB Online (Atlas) Connection
-const mongoURI = process.env.MONGODB_URI;
-
-if (!mongoURI) {
-    console.error('❌ ERROR: MONGODB_URI tidak ditemukan di .env!');
-}
+// Hubungkan ke MongoDB Compass (Lokal)
+const mongoURI = 'mongodb://127.0.0.1:27017/portofolio';
 
 mongoose.connect(mongoURI)
-    .then(() => console.log('✅ DATABASE ATLAS ONLINE TERKONEKSI!'))
-    .catch(err => console.error('❌ Gagal konek ke Atlas:', err.message));
+    .then(() => console.log('✅ DATABASE TERKONEKSI: MongoDB Compass Siap!'))
+    .catch(err => console.error('❌ GAGAL KONEK MONGODB:', err.message));
 
 // Schema
 const Message = mongoose.model('Message', new mongoose.Schema({
-    name: { type: String, required: true },
-    email: { type: String, required: true },
-    message: { type: String, required: true },
+    name: String,
+    email: String,
+    message: String,
     date: { type: Date, default: Date.now }
 }));
 
-// Route Utama
+// Route Simpan & Kirim Email
 app.post(['/', '/api/contact'], async (req, res) => {
     try {
         const { name, email, message } = req.body;
 
         if (!name || !email || !message) {
-            return res.status(400).json({ success: false, message: 'Semua kolom harus diisi.' });
+            return res.status(400).json({ success: false, message: 'Harap isi semua kolom!' });
         }
 
-        // 1. Simpan ke Atlas
+        // 1. Simpan ke MongoDB Compass
         const newMessage = new Message({ name, email, message });
         await newMessage.save();
-        console.log(`✅ Pesan dari ${name} berhasil disimpan di MongoDB Atlas.`);
+        console.log(`✅ Pesan dari ${name} masuk ke Compass!`);
 
-        // 2. Email Notifikasi (Background)
+        // 2. Kirim Notifikasi ke Email Risma
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
@@ -58,26 +53,24 @@ app.post(['/', '/api/contact'], async (req, res) => {
 
         const mailOptions = {
             from: process.env.EMAIL_USER,
-            to: process.env.EMAIL_RECEIVER || 'rismaamaliaputri366@gmail.com',
-            subject: `Portfolio Message from ${name}`,
-            text: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`
+            to: process.env.EMAIL_RECEIVER,
+            subject: `Pesan Baru Portofolio: ${name}`,
+            text: `Halo Risma,\n\nAda pesan baru masuk:\nNama: ${name}\nEmail: ${email}\nPesan: ${message}`
         };
 
-        transporter.sendMail(mailOptions).catch(err => console.error('⚠️ Email Error:', err.message));
+        // Kirim email di background
+        transporter.sendMail(mailOptions, (err) => {
+            if (err) console.log('⚠️ Email error:', err.message);
+            else console.log('📧 Email notifikasi sudah dikirim ke Risma!');
+        });
 
-        res.status(200).json({ success: true, message: 'Pesan Terkirim ke Database Online!' });
+        res.status(200).json({ success: true, message: 'Berhasil! Pesan tersimpan di Compass dan terkirim ke Email.' });
     } catch (error) {
         console.error('❌ Error API:', error.message);
         res.status(500).json({ success: false, message: error.message });
     }
 });
 
-// Export untuk Vercel
-module.exports = app;
-
-// Jalankan jika di localhost
-if (require.main === module) {
-    app.listen(PORT, () => {
-        console.log(`🚀 Server running on http://localhost:${PORT}`);
-    });
-}
+app.listen(PORT, () => {
+    console.log(`🚀 Server Risma Jalan di http://localhost:${PORT}`);
+});
