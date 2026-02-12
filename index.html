@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risma Amalia Putri | Portofolio</title>
+    <meta name="description"
+        content="Full Stack Developer Portfolio. Specializing in creating aesthetic and functional digital experiences.">
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230a0a0a'/><text x='50%' y='55%' dominant-baseline='central' text-anchor='middle' font-family='Outfit' font-weight='800' font-size='60' fill='%23ff007f' style='filter: drop-shadow(0 0 5px %23ff007f);'>R</text></svg>">
+</head>
+
+<body>
+    <!-- Preloader -->
+    <div id="preloader">
+        <canvas id="preloader-stars"></canvas>
+        <div class="welcome-content">
+            <div class="profile-circle">
+                <div class="glow-ring-outer"></div>
+                <div class="glow-ring-inner"></div>
+                <img src="assets/images/RISMA.jpeg" alt="Risma Amalia Putri" class="profile-photo">
+            </div>
+            <h1 class="welcome-name">
+                <span class="first-name">Risma</span>
+                <span class="last-name">Amalia Putri</span>
+            </h1>
+            <div class="welcome-bar">
+                <div class="welcome-fill" id="progressBar"></div>
+            </div>
+            <p class="welcome-text">Loading Portfolio...</p>
+        </div>
+    </div>
+
+    <!-- Animated Background -->
+    <canvas id="bg-canvas"></canvas>
+    <div class="overlay"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar glass">
+        <div class="container nav-container">
+            <a href="#home" class="logo">Risma Amalia Putri<span class="dot">.</span></a>
+            <ul class="nav-links">
+                <li><a href="#home" class="nav-link active"><i class="fas fa-home"></i> <span>Home</span></a></li>
+                <li><a href="#about" class="nav-link"><i class="fas fa-user"></i> <span>About</span></a></li>
+                <li><a href="#skills" class="nav-link"><i class="fas fa-code"></i> <span>Skills</span></a></li>
+                <li><a href="#projects" class="nav-link"><i class="fas fa-folder-open"></i> <span>Projects</span></a>
+                </li>
+                <li><a href="#experience" class="nav-link"><i class="fas fa-briefcase"></i> <span>Experience</span></a>
+                </li>
+                <li><a href="#awards" class="nav-link"><i class="fas fa-trophy"></i> <span>Awards</span></a></li>
+                <li><a href="#contact" class="nav-link"><i class="fas fa-envelope"></i> <span>Contact</span></a></li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="container hero-container">
+            <div class="hero-content">
+                <span class="greeting shimmer">Hello, I'm</span>
+                <h1 class="hero-name">Risma <span class="highlight glitch-text" data-text="Amalia Putri">Amalia
+                        Putri</span></h1>
+                <h2 class="hero-role"><span class="typing-text"></span></h2>
+                <p class="hero-description">
+                    Designing meaningful digital experiences with creativity and clarity.
+                </p>
+                <div class="hero-buttons">
+                    <a href="#projects" class="btn btn-primary glow-effect">View Works <i
+                            class="fas fa-arrow-right"></i></a>
+                    <a href="assets/CV_Risma_Amalia_Putri.pdf" class="btn btn-outline" download>
+                        Download CV <i class="fas fa-download"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="visual-wrapper">
+                    <div class="orbit orbit-1"></div>
+                    <div class="orbit orbit-2"></div>
+                    <div class="orbit orbit-3"></div>
+
+                    <div class="profile-img-container">
+                        <img src="assets/images/RISMA.jpeg" alt="Risma Amalia Putri" class="profile-img">
+                    </div>
+                    <div class="profile-glow"></div>
+
+                    <div class="floating-shapes">
+                        <div class="shape shape-1" title="VS Code">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vscode/vscode-original.svg"
+                                alt="VS Code">
+                        </div>
+                        <div class="shape shape-2" title="Figma">
+                            <img src="https://www.vectorlogo.zone/logos/figma/figma-icon.svg" alt="Figma">
+                        </div>
+                        <div class="shape shape-3" title="XAMPP">
+                            <span class="shape-text">XAMPP</span>
+                        </div>
+                        <div class="shape shape-4" title="Laravel">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/laravel/laravel-original.svg"
+                                alt="Laravel">
+                        </div>
+                        <div class="shape shape-5" title="Next.js">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-line.svg"
+                                alt="Next.js">
+                        </div>
+                        <div class="shape shape-6" title="MongoDB">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg"
+                                alt="MongoDB">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about reveal">
+        <div class="container about-container">
+            <div class="section-header">
+                <h2 class="section-title">About <span class="highlight">Me</span></h2>
+                <div class="title-bar"></div>
+            </div>
+            <div class="about-content">
+                <div class="about-image tilt-card reveal">
+                    <div class="image-frame-glow"></div>
+                    <div class="about-img-container">
+                        <img src="assets/images/Profil Risma.jpeg" alt="Risma Amalia Putri" class="about-img">
+                    </div>
+                </div>
+                <div class="about-text reveal">
+                    <h3>Information Systems Student Telkom University</h3>
+                    <p>
+                        I am <span class="highlight">Risma Amalia Putri</span>, or simply Risma. I'm currently studying
+                        Information Systems at Telkom University Purwokerto.
+                        I have a deep interest in <span class="text-gradient">digital systems</span> and
+                        graphic design.
+                    </p>
+                    <p>
+                        I thrive in project-based environments, enjoy collaborating with teams, and am always eager to
+                        learn and implement new technologies.
+                    </p>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="skills reveal">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">My <span class="highlight">Skills</span></h2>
+                <p class="section-subtitle">Tech Stack & Tools</p>
+            </div>
+            <div class="skills-grid">
+                <div class="skill-card tilt-card reveal" style="transition-delay: 0.1s">
+                    <div class="card-content">
+                        <i class="fab fa-html5 skill-icon highlight"></i>
+                        <h3>HTML</h3>
+                        <div class="skill-level-bar">
+                            <div class="fill" style="width:95%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="skill-card tilt-card reveal" style="transition-delay: 0.2s">
+                    <div class="card-content">
+                        <i class="fab fa-js skill-icon highlight"></i>
+                        <h3>JavaScript</h3>
+                        <div class="skill-level-bar">
+                            <div class="fill" style="width:85%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="skill-card tilt-card reveal" style="transition-delay: 0.3s">
+                    <div class="card-content">
+                        <i class="fab fa-laravel skill-icon highlight"></i>
+                        <h3>Laravel</h3>
+                        <div class="skill-level-bar">
+                            <div class="fill" style="width:90%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="skill-card tilt-card reveal" style="transition-delay: 0.4s">
+                    <div class="card-content">
+                        <i class="fas fa-code skill-icon highlight"></i>
+                        <h3>Next.js</h3>
+                        <div class="skill-level-bar">
+                            <div class="fill" style="width:85%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="skill-card tilt-card reveal" style="transition-delay: 0.5s">
+                    <div class="card-content">
+                        <i class="fab fa-python skill-icon highlight"></i>
+                        <h3>Python</h3>
+                        <div class="skill-level-bar">
+                            <div class="fill" style="width:80%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="skill-card tilt-card reveal" style="transition-delay: 0.6s">
+                    <div class="card-content">
+                        <i class="fas fa-server skill-icon highlight"></i>
+                        <h3>XAMPP</h3>
+                        <div class="skill-level-bar">
+                            <div class="fill" style="width:90%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="skill-card tilt-card reveal" style="transition-delay: 0.7s">
+                    <div class="card-content">
+                        <i class="fas fa-database skill-icon highlight"></i>
+                        <h3>MongoDB</h3>
+                        <div class="skill-level-bar">
+                            <div class="fill" style="width:80%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="skill-card tilt-card reveal" style="transition-delay: 0.8s">
+                    <div class="card-content">
+                        <i class="fab fa-figma skill-icon highlight"></i>
+                        <h3>Figma</h3>
+                        <div class="skill-level-bar">
+                            <div class="fill" style="width:95%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="projects reveal">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Featured <span class="highlight">Projects</span></h2>
+                <div class="title-bar"></div>
+            </div>
+
+            <div class="projects-grid" id="projectsGrid">
+                <!-- Project 1: Library System -->
+                <article class="project-card tilt-card reveal">
+                    <div class="card-inner">
+                        <div class="project-image">
+                            <img src="assets/images/Library.png" alt="Library Information System">
+                        </div>
+                        <div class="project-content">
+                            <span class="project-date">2024</span>
+                            <h3>Website Library Information System</h3>
+                            <p>Web-based system designed to manage book data, members, borrowing, and returns. Developed
+                                using Laravel and MySQL for efficient administration.</p>
+                            <div class="tech-tags">
+                                <span>Laravel</span>
+                                <span>MySQL</span>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Project 2: CikalTas -->
+                <article class="project-card tilt-card reveal" style="transition-delay: 0.1s">
+                    <div class="card-inner">
+                        <div class="project-image">
+                            <img src="assets/images/Cikaltas.png" alt="CikalTas E-Commerce">
+                        </div>
+                        <div class="project-content">
+                            <span class="project-date">2025</span>
+                            <h3>Website E-Commerce – CikalTas</h3>
+                            <p>E-commerce platform to support SME digitalization in managing products, orders, and
+                                payments. Features include cart, checkout, and order processing.</p>
+                            <div class="tech-tags">
+                                <span>Laravel</span>
+                                <span>MySQL</span>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+
+
+                <!-- Project 5: Sekolah 3T -->
+                <article class="project-card tilt-card reveal" style="transition-delay: 0.1s">
+                    <div class="card-inner">
+                        <div class="project-image">
+                            <img src="assets/images/Sekolah3T.jpeg" alt="Sekolah 3T Platform">
+                        </div>
+                        <div class="project-content">
+                            <span class="project-date">2026</span>
+                            <h3>Sekolah 3T – Donation Platform</h3>
+                            <p>Donation & campaign platform for underdeveloped regions. Built with Next.js and MongoDB,
+                                featuring role-based access for Schools, Donors, and Admins.</p>
+                            <div class="tech-tags">
+                                <span>Next.js</span>
+                                <span>MongoDB</span>
+                                <span>Figma</span>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Project 6: Complaint Ticketing -->
+                <article class="project-card tilt-card reveal" style="transition-delay: 0.2s">
+                    <div class="card-inner">
+                        <div class="project-image">
+                            <img src="assets/images/Ticketing.jpeg" alt="Complaint Ticketing System">
+                        </div>
+                        <div class="project-content">
+                            <span class="project-date">2026</span>
+                            <h3>Diraya Tech – Complaint Ticketing</h3>
+                            <p>Web-based platform to manage customer complaints. Features ticket monitoring (Open,
+                                Resolved, etc.) and integrated workflow with MongoDB.</p>
+                            <div class="tech-tags">
+                                <span>Next.js</span>
+                                <span>MongoDB</span>
+                                <span>Figma</span>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Experience Section -->
+    <section id="experience" class="experience reveal">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Organization <span class="highlight">& Experience</span></h2>
+                <div class="title-bar"></div>
+            </div>
+            <div class="timeline">
+                <div class="timeline-item reveal">
+                    <div class="timeline-year">2026</div>
+                    <div class="timeline-content tilt-card">
+                        <h3>Diraya Tech</h3>
+                        <p class="role">Full Stack Developer (Internship)</p>
+                    </div>
+                </div>
+                <div class="timeline-item reveal">
+                    <div class="timeline-year">2025</div>
+                    <div class="timeline-content tilt-card">
+                        <h3>MIS Organizations</h3>
+                        <ul class="sub-roles">
+                            <li>HMSI – Division Entrepreneurship</li>
+                            <li>Visit to Panti Jompo – Secretary</li>
+                            <li>Webinar Entrepreneur – Secretary</li>
+                            <li>Seminar Technopreneur – Secretary</li>
+                            <li>Dies Natalis Sistem Informasi 2025 – Secretary</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="timeline-item reveal">
+                    <div class="timeline-year">2024</div>
+                    <div class="timeline-content tilt-card">
+                        <h3>Campus Events</h3>
+                        <ul class="sub-roles">
+                            <li>Telkom Orientation Days – Secretary</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="timeline-item reveal">
+                    <div class="timeline-year">2023</div>
+                    <div class="timeline-content tilt-card">
+                        <h3>Early Career</h3>
+                        <ul class="sub-roles">
+                            <li>UKM Racana – Secretary</li>
+                            <li>HMSI Internship – Division Entrepreneurship</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Achievements & Certifications -->
+    <section id="awards" class="awards reveal">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Achievements <span class="highlight">& Certificates</span></h2>
+                <div class="title-bar"></div>
+            </div>
+
+            <div class="awards-combined-grid">
+                <!-- Achievement -->
+                <div class="award-card tilt-card reveal">
+                    <div class="achievement-img"
+                        style="width: 100px; height: 100px; flex-shrink: 0; position: relative;">
+                        <img src="assets/images/PIMNAS.jpeg" alt="Finalist PIMNAS 2025">
+                        <div class="award-badge"
+                            style="position: absolute; bottom: -5px; right: -5px; background: rgba(0,0,0,0.8); width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid var(--accent-pink);">
+                            <i class="fas fa-trophy" style="color: var(--accent-pink); font-size: 0.8rem;"></i>
+                        </div>
+                    </div>
+                    <div class="award-info">
+                        <h3>Finalist PIMNAS 2025</h3>
+                        <p>Petaloka — Smart Bag with GPS Tracking for Child Safety</p>
+                    </div>
+                </div>
+
+                <!-- Cert 1 -->
+                <div class="cert-card tilt-card reveal" style="transition-delay: 0.1s">
+                    <i class="fas fa-certificate cert-icon highlight"></i>
+                    <h4>Odoo Certification</h4>
+                    <p>ERP & Business Analysis</p>
+                </div>
+
+                <!-- Cert 2 -->
+                <div class="cert-card tilt-card reveal" style="transition-delay: 0.2s">
+                    <i class="fab fa-aws cert-icon highlight"></i>
+                    <h4>AWS Fundamentals</h4>
+                    <p>Cloud Architecture</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact reveal">
+        <div class="container contact-container">
+            <div class="section-header">
+                <h2 class="section-title">Get In <span class="highlight">Touch</span></h2>
+                <p class="section-subtitle">Let's collaborate or just say hi</p>
+            </div>
+
+            <div class="contact-wrapper">
+                <div class="contact-info">
+                    <a href="https://wa.me/62895422858694" target="_blank" class="info-item reveal">
+                        <i class="fab fa-whatsapp"></i>
+                        <div>
+                            <h4>WhatsApp</h4>
+                        </div>
+                    </a>
+                    <a href="mailto:rismaamaliaputri366@gmail.com" class="info-item reveal"
+                        style="transition-delay: 0.1s">
+                        <i class="fas fa-envelope"></i>
+                        <div>
+                            <h4>Email</h4>
+                        </div>
+                    </a>
+                    <a href="https://linkedin.com/in/risma-amalia-putri-3b351a374" target="_blank"
+                        class="info-item reveal" style="transition-delay: 0.2s">
+                        <i class="fab fa-linkedin"></i>
+                        <div>
+                            <h4>LinkedIn</h4>
+                        </div>
+                    </a>
+                    <a href="https://dribbble.com/risma-amalia-putri" target="_blank" class="info-item reveal"
+                        style="transition-delay: 0.3s">
+                        <i class="fab fa-dribbble"></i>
+                        <div>
+                            <h4>Dribbble</h4>
+                        </div>
+                    </a>
+                </div>
+
+                <form class="contact-form" id="contactForm">
+                    <div class="form-group">
+                        <input type="text" name="name" id="name" placeholder="Your Name" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" name="email" id="email" placeholder="Your Email" required>
+                    </div>
+                    <div class="form-group">
+                        <textarea name="message" id="message" rows="5" placeholder="Your Message" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <span>Send Message</span>
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                    <p id="formStatus" class="form-status"></p>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Made with <i class="fas fa-heart highlight"></i> by Risma Amalia Putri.</p>
+
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+
+</html>
