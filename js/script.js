@@ -410,7 +410,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     formStatus.classList.add('success');
                     contactForm.reset();
                 } else {
-                    formStatus.textContent = 'Failed to send message to Database.';
+                    const errorData = await response.json();
+                    formStatus.textContent = errorData.message || 'Failed to send message to Database.';
                     formStatus.classList.add('error');
                 }
             } catch (error) {
