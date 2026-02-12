@@ -1,76 +1,83 @@
 const express = require('express');
-const mysql = require('mysql2/promise');
+const mongoose = require('mongoose');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
 const path = require('path');
 
+// Load environment variables from .env in the root directory
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Fungsi sakti untuk koneksi
-async function getDBConnection() {
-    const configs = [
-        { host: '127.0.0.1', user: 'root', password: '', database: 'portofolio', port: 3306 },
-        { host: 'localhost', user: 'root', password: '', database: 'portofolio', port: 3306 }
-    ];
+// MongoDB Connection
+const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/portofolio';
+mongoose.connect(mongoURI)
+    .then(() => console.log('✅ MongoDB Connected to portofolio database'))
+    .catch(err => console.error('❌ MongoDB Connection Error:', err));
 
-    for (let config of configs) {
-        try {
-            const conn = await mysql.createConnection(config);
-            console.log(`✅ BERHASIL KONEK PAKE: ${config.host}`);
-            return conn;
-        } catch (err) {
-            console.log(`❌ Gagal pake ${config.host}: ${err.message}`);
-        }
+// Schema
+const MessageSchema = new mongoose.Schema({
+    name: String,
+    email: String,
+    message: String,
+    date: { type: String, default: () => new Date().toLocaleString("id-ID", { timeZone: "Asia/Jakarta" }) }
+});
+
+const Message = mongoose.model('Message', MessageSchema);
+
+// Nodemailer Config
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS // Gunakan App Password Gmail
     }
-    throw new Error('Semua jalur koneksi diblokir oleh Windows! Coba restart laptop atau cek Firewall.');
-}
+});
 
+// Routes
 app.post(['/', '/api/contact'], async (req, res) => {
-    let connection;
     try {
         const { name, email, message } = req.body;
 
-        // Coba koneksi
-        connection = await getDBConnection();
+        if (!name || !email || !message) {
+            return res.status(400).json({ success: false, message: 'Semua kolom harus diisi.' });
+        }
 
-        // Query simpan
-        const [result] = await connection.execute(
-            'INSERT INTO messages (name, email, message) VALUES (?, ?, ?)',
-            [name, email, message]
-        );
+        // 1. Simpan ke MongoDB
+        const newMessage = new Message({ name, email, message });
+        await newMessage.save();
+        console.log('✅ Pesan tersimpan di MongoDB');
 
-        console.log('✅ Data berhasil masuk phpMyAdmin!');
-
-        // Kirim Email (optional, kalau gagal tidak apa-apa)
+        // 2. Kirim Email Notifikasi
         try {
-            const transporter = nodemailer.createTransport({
-                service: 'gmail',
-                auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
-            });
-            await transporter.sendMail({
+            const mailOptions = {
                 from: process.env.EMAIL_USER,
-                to: process.env.EMAIL_RECEIVER,
-                subject: `Pesan Baru: ${name}`,
-                text: `Nama: ${name}\nEmail: ${email}\nPesan: ${message}`
-            });
-        } catch (e) { console.log('⚠️ Email eror tapi DB aman.'); }
+                to: process.env.EMAIL_RECEIVER || 'rismaamaliaputri366@gmail.com',
+                subject: `Pesan Baru Portofolio: ${name}`,
+                text: `Anda menerima pesan baru dari website portofolio.\n\n` +
+                    `Nama: ${name}\n` +
+                    `Email: ${email}\n` +
+                    `Pesan: ${message}`
+            };
 
-        res.status(201).json({ success: true, message: 'MANDRAGUNA! Pesan sudah masuk ke phpMyAdmin!' });
+            await transporter.sendMail(mailOptions);
+            console.log('📧 Email notifikasi terkirim');
+        } catch (mailError) {
+            console.warn('⚠️ Email gagal dikirim (Cek App Password):', mailError.message);
+        }
+
+        res.status(201).json({ success: true, message: 'Berhasil! Pesan tersimpan dan terkirim ke email.' });
     } catch (error) {
-        console.error('🔴 ERROR TOTAL:', error.message);
-        res.status(500).json({ success: false, message: error.message });
-    } finally {
-        if (connection) await connection.end();
+        console.error('❌ Error handling request:', error);
+        res.status(500).json({ success: false, message: 'Gagal menyimpan pesan.' });
     }
 });
 
 app.listen(PORT, () => {
-    console.log(`� SERVER ON http://localhost:${PORT}`);
-    console.log('--------------------------------------');
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
