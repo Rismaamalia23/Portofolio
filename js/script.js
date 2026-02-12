@@ -393,8 +393,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const formData = new FormData(contactForm);
 
             try {
-                // Cek apakah jalan di localhost atau sudah di-deploy
-                const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                // Cek apakah jalan di localhost, 127.0.0.1, atau file protocol
+                const isLocal = window.location.hostname === 'localhost' ||
+                    window.location.hostname === '127.0.0.1' ||
+                    window.location.hostname === '';
                 const apiUrl = isLocal ? 'http://localhost:5000/api/contact' : '/api/contact';
 
                 const response = await fetch(apiUrl, {
