@@ -41,10 +41,17 @@ app.post('/api/contact', async (req, res) => {
     }
 });
 
-
-
-
-
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
+// Root Route - Serve index.html explicitly if needed
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/index.html');
 });
+
+// Export for Vercel
+module.exports = app;
+
+// Listen only if not on Vercel
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`🚀 Server running on http://localhost:${PORT}`);
+    });
+}
