@@ -12,75 +12,65 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// Gunakan POOL agar koneksi lebih stabil di Windows
-const pool = mysql.createPool({
-    host: 'localhost', // Coba localhost dulu
-    user: 'root',
-    password: '',
-    database: 'portofolio',
-    port: 3306,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-});
+// Fungsi sakti untuk koneksi
+async function getDBConnection() {
+    const configs = [
+        { host: '127.0.0.1', user: 'root', password: '', database: 'portofolio', port: 3306 },
+        { host: 'localhost', user: 'root', password: '', database: 'portofolio', port: 3306 }
+    ];
 
-// Tes koneksi saat server baru nyala
-pool.getConnection()
-    .then(conn => {
-        console.log('✅ DATABASE TERKONEKSI: Risma, MySQL kamu sudah siap!');
-        conn.release();
-    })
-    .catch(err => {
-        console.log('⚠️ INFO: Mencoba jalur alternatif 127.0.0.1...');
-    });
+    for (let config of configs) {
+        try {
+            const conn = await mysql.createConnection(config);
+            console.log(`✅ BERHASIL KONEK PAKE: ${config.host}`);
+            return conn;
+        } catch (err) {
+            console.log(`❌ Gagal pake ${config.host}: ${err.message}`);
+        }
+    }
+    throw new Error('Semua jalur koneksi diblokir oleh Windows! Coba restart laptop atau cek Firewall.');
+}
 
 app.post(['/', '/api/contact'], async (req, res) => {
+    let connection;
     try {
         const { name, email, message } = req.body;
-        if (!name || !email || !message) {
-            return res.status(400).json({ success: false, message: 'Harap isi semua kolom.' });
-        }
 
-        // 1. Simpan ke Database menggunakan Pool
-        try {
-            const query = 'INSERT INTO messages (name, email, message) VALUES (?, ?, ?)';
-            await pool.execute(query, [name, email, message]);
-            console.log('✅ Pesan masuk ke phpMyAdmin');
-        } catch (dbError) {
-            console.error('❌ Error Simpan:', dbError.message);
-            return res.status(500).json({
-                success: false,
-                message: `Gagal Simpan: ${dbError.message}. Coba Restart MySQL di XAMPP.`
-            });
-        }
+        // Coba koneksi
+        connection = await getDBConnection();
 
-        // 2. Kirim Email Notifikasi
+        // Query simpan
+        const [result] = await connection.execute(
+            'INSERT INTO messages (name, email, message) VALUES (?, ?, ?)',
+            [name, email, message]
+        );
+
+        console.log('✅ Data berhasil masuk phpMyAdmin!');
+
+        // Kirim Email (optional, kalau gagal tidak apa-apa)
         try {
             const transporter = nodemailer.createTransport({
                 service: 'gmail',
-                auth: {
-                    user: process.env.EMAIL_USER,
-                    pass: process.env.EMAIL_PASS
-                }
+                auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
             });
-
             await transporter.sendMail({
                 from: process.env.EMAIL_USER,
                 to: process.env.EMAIL_RECEIVER,
-                subject: `📌 Pesan Baru: ${name}`,
+                subject: `Pesan Baru: ${name}`,
                 text: `Nama: ${name}\nEmail: ${email}\nPesan: ${message}`
             });
-            console.log('📧 Email notifikasi terkirim');
-        } catch (mailError) {
-            console.log('⚠️ Email skip (tapi data tetap aman di MySQL)');
-        }
+        } catch (e) { console.log('⚠️ Email eror tapi DB aman.'); }
 
-        res.status(201).json({ success: true, message: 'BERHASIL! Pesan tersimpan di database.' });
+        res.status(201).json({ success: true, message: 'MANDRAGUNA! Pesan sudah masuk ke phpMyAdmin!' });
     } catch (error) {
-        res.status(500).json({ success: false, message: 'Masalah sistem.' });
+        console.error('🔴 ERROR TOTAL:', error.message);
+        res.status(500).json({ success: false, message: error.message });
+    } finally {
+        if (connection) await connection.end();
     }
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 Server on http://localhost:${PORT}`);
+    console.log(`� SERVER ON http://localhost:${PORT}`);
+    console.log('--------------------------------------');
 });
