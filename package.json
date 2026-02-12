@@ -2,8 +2,8 @@
   "name": "portofolio-risma",
   "version": "1.0.0",
   "scripts": {
-    "start": "node api/contact.js",
-    "dev": "node api/contact.js"
+    "start": "node server.js",
+    "dev": "node server.js"
   },
   "dependencies": {
     "cors": "^2.8.6",
