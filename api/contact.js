@@ -4,71 +4,66 @@ const cors = require('cors');
 const nodemailer = require('nodemailer');
 const path = require('path');
 
-// Load .env
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
 
-// MongoDB Connection - Use physical IP for certainty
-const mongoURI = 'mongodb://127.0.0.1:27017/portofolio';
+// KONEKSI KE MONGODB ATLAS
+// Gunakan MONGODB_URI dari .env (untuk Online) atau localhost (untuk cadangan)
+const mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/portofolio';
 
 mongoose.connect(mongoURI)
-    .then(() => console.log('✅ DATABASE TERKONEKSI KE MONGODB'))
-    .catch(err => console.error('❌ GAGAL KONEK MONGODB:', err.message));
+    .then(() => console.log('✅ DATABASE ONLINE SIAP!'))
+    .catch(err => console.error('❌ Gagal konek:', err.message));
 
-// Schema
-const MessageSchema = new mongoose.Schema({
+const Message = mongoose.model('Message', new mongoose.Schema({
     name: String,
     email: String,
     message: String,
     date: { type: Date, default: Date.now }
-});
+}));
 
-const Message = mongoose.model('Message', MessageSchema);
-
-// Email Config
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    }
-});
-
-// Routes
 app.post(['/', '/api/contact'], async (req, res) => {
     try {
         const { name, email, message } = req.body;
+        if (!name || !email || !message) {
+            return res.status(400).json({ success: false, message: 'Semua kolom harus diisi.' });
+        }
 
-        // Simpan ke MongoDB
+        // Simpan ke Atlas
         const newMessage = new Message({ name, email, message });
         await newMessage.save();
-        console.log('✅ Pesan berhasil disimpan ke MongoDB');
 
-        // Kirim Email
+        // Kirim Notifikasi Email
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            }
+        });
+
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: process.env.EMAIL_RECEIVER || 'rismaamaliaputri366@gmail.com',
-            subject: `New Portfolio Message from ${name}`,
-            text: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`
+            subject: `Pesan Baru dari ${name}`,
+            text: `Nama: ${name}\nEmail: ${email}\nPesan: ${message}`
         };
 
-        transporter.sendMail(mailOptions, (error, info) => {
-            if (error) console.log('⚠️ Email error:', error.message);
-            else console.log('📧 Email terkirim');
-        });
+        transporter.sendMail(mailOptions).catch(e => console.log('Email Error:', e.message));
 
-        res.status(200).json({ success: true, message: 'Berhasil dikirim dan disimpan!' });
+        res.status(200).json({ success: true, message: 'Pesan terkirim secara Online!' });
     } catch (error) {
-        console.error('❌ Error:', error.message);
         res.status(500).json({ success: false, message: error.message });
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`🚀 Server berjalan di http://localhost:${PORT}`);
-});
+module.exports = app; // Penting untuk Vercel
+
+if (require.main === module) {
+    app.listen(PORT, () => console.log(`🚀 Server on port ${PORT}`));
+}
