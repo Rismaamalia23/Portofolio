@@ -15,16 +15,21 @@ app.use(cors());
 app.use(express.json());
 
 // MongoDB Connection
-const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/portofolio';
-mongoose.connect(mongoURI)
+const mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/portofolio';
+mongoose.connect(mongoURI, {
+    serverSelectionTimeoutMS: 5000 // Batasi waktu tunggu koneksi
+})
     .then(() => console.log('✅ MongoDB Connected to portofolio database'))
-    .catch(err => console.error('❌ MongoDB Connection Error:', err));
+    .catch(err => {
+        console.error('❌ MongoDB Connection Error:', err.message);
+        // Jangan biarkan server crash, tapi tampilkan error saat request masuk
+    });
 
 // Schema
 const MessageSchema = new mongoose.Schema({
-    name: String,
-    email: String,
-    message: String,
+    name: { type: String, required: true },
+    email: { type: String, required: true },
+    message: { type: String, required: true },
     date: { type: String, default: () => new Date().toLocaleString("id-ID", { timeZone: "Asia/Jakarta" }) }
 });
 
@@ -74,7 +79,10 @@ app.post(['/', '/api/contact'], async (req, res) => {
         res.status(201).json({ success: true, message: 'Berhasil! Pesan tersimpan dan terkirim ke email.' });
     } catch (error) {
         console.error('❌ Error handling request:', error);
-        res.status(500).json({ success: false, message: 'Gagal menyimpan pesan.' });
+        res.status(500).json({
+            success: false,
+            message: `Gagal menyimpan pesan: ${error.message}`
+        });
     }
 });
 
