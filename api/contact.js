@@ -37,7 +37,10 @@ app.post(['/', '/api/contact'], async (req, res) => {
             console.log('✅ Pesan tersimpan di database');
         } catch (dbError) {
             console.error('❌ Database Error:', dbError);
-            return res.status(500).json({ success: false, message: 'Database error: Pastikan tabel "messages" sudah dibuat.' });
+            return res.status(500).json({
+                success: false,
+                message: `Database error: ${dbError.message}. Pastikan tabel "messages" sudah dibuat di database "${dbConfig.database}".`
+            });
         }
 
         // 2. Kirim Email (Jangan gagalkan respon jika email gagal)
