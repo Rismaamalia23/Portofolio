@@ -395,7 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 // Cek apakah jalan di localhost atau sudah di-deploy
                 const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-                const apiUrl = isLocal ? 'http://localhost:5002/api/contact' : '/api/contact';
+                const apiUrl = isLocal ? 'http://localhost:5000/api/contact' : '/api/contact';
 
                 const response = await fetch(apiUrl, {
                     method: 'POST',

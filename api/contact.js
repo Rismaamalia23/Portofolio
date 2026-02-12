@@ -4,61 +4,71 @@ const cors = require('cors');
 const nodemailer = require('nodemailer');
 const path = require('path');
 
+// Load .env
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 const app = express();
-const PORT = 5002; // PINDAH KE 5002 AGAR FRESH
+const PORT = 5000;
 
 app.use(cors());
 app.use(express.json());
 
+// MongoDB Connection - Use physical IP for certainty
+const mongoURI = 'mongodb://127.0.0.1:27017/portofolio';
+
+mongoose.connect(mongoURI)
+    .then(() => console.log('✅ DATABASE TERKONEKSI KE MONGODB'))
+    .catch(err => console.error('❌ GAGAL KONEK MONGODB:', err.message));
+
 // Schema
-const Message = mongoose.model('Message', new mongoose.Schema({
-    name: String, email: String, message: String,
-    date: { type: String, default: () => new Date().toLocaleString("id-ID") }
-}));
+const MessageSchema = new mongoose.Schema({
+    name: String,
+    email: String,
+    message: String,
+    date: { type: Date, default: Date.now }
+});
 
-// Route
-app.post(['/', '/api/contact'], async (req, res) => {
-    // Cek koneksi
-    if (mongoose.connection.readyState !== 1) {
-        return res.status(503).json({ success: false, message: 'Database masih proses nyambung... Coba 2 detik lagi.' });
-    }
+const Message = mongoose.model('Message', MessageSchema);
 
-    try {
-        const { name, email, message } = req.body;
-        await new Message({ name, email, message }).save();
-
-        console.log(`✅ Pesan dari ${name} masuk ke MongoDB!`);
-
-        // Kirim Email di Background
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
-        });
-        transporter.sendMail({
-            from: process.env.EMAIL_USER,
-            to: process.env.EMAIL_RECEIVER || 'rismaamaliaputri366@gmail.com',
-            subject: `Pesan Baru: ${name}`,
-            text: `Nama: ${name}\nEmail: ${email}\nPesan: ${message}`
-        }).catch(e => console.log('Email gagal (DB Aman):', e.message));
-
-        res.status(201).json({ success: true, message: 'AKHIRNYA BERHASIL! Data sudah masuk ke MongoDB Compass.' });
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
+// Email Config
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
     }
 });
 
-// Koneksi ke MongoDB
-console.log('📡 Menghubungkan ke MongoDB...');
-mongoose.connect('mongodb://127.0.0.1:27017/portofolio', {
-    serverSelectionTimeoutMS: 5000
-}).then(() => {
-    console.log('✅ PORT 5002 READY! MongoDB Risma sudah siap!');
-}).catch(err => {
-    console.error('❌ Gagal konek:', err.message);
+// Routes
+app.post(['/', '/api/contact'], async (req, res) => {
+    try {
+        const { name, email, message } = req.body;
+
+        // Simpan ke MongoDB
+        const newMessage = new Message({ name, email, message });
+        await newMessage.save();
+        console.log('✅ Pesan berhasil disimpan ke MongoDB');
+
+        // Kirim Email
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: process.env.EMAIL_RECEIVER || 'rismaamaliaputri366@gmail.com',
+            subject: `New Portfolio Message from ${name}`,
+            text: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) console.log('⚠️ Email error:', error.message);
+            else console.log('📧 Email terkirim');
+        });
+
+        res.status(200).json({ success: true, message: 'Berhasil dikirim dan disimpan!' });
+    } catch (error) {
+        console.error('❌ Error:', error.message);
+        res.status(500).json({ success: false, message: error.message });
+    }
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 Server SEHAT di http://localhost:${PORT}`);
+    console.log(`🚀 Server berjalan di http://localhost:${PORT}`);
 });
