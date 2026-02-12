@@ -27,10 +27,13 @@ const MessageSchema = new mongoose.Schema({
 const Message = mongoose.model('Message', MessageSchema);
 
 // Routes
-// 1. Contact Form
-app.post('/api/contact', async (req, res) => {
+// Handle both /api/contact and / because of how Vercel routes named files
+app.post(['/', '/api/contact'], async (req, res) => {
     try {
         const { name, email, message } = req.body;
+        if (!name || !email || !message) {
+            return res.status(400).json({ success: false, message: 'All fields are required.' });
+        }
         const newMessage = new Message({ name, email, message });
         await newMessage.save();
         res.status(201).json({ success: true, message: 'Message sent successfully! Thank you.' });
