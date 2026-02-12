@@ -4,73 +4,60 @@ const cors = require('cors');
 const nodemailer = require('nodemailer');
 const path = require('path');
 
-// Load environment variables dari folder utama
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = 5000;
 
 app.use(cors());
 app.use(express.json());
 
-// Hubungkan ke MongoDB Compass (Lokal)
+// DISABLE BUFFERING - Langsung error kalo ga konek
+mongoose.set('bufferCommands', false);
+
 const mongoURI = 'mongodb://127.0.0.1:27017/portofolio';
 
-mongoose.connect(mongoURI)
-    .then(() => console.log('✅ DATABASE TERKONEKSI: MongoDB Compass Siap!'))
-    .catch(err => console.error('❌ GAGAL KONEK MONGODB:', err.message));
+console.log('--- INI VERSI TERBARU (PASTI KONEK) ---');
 
-// Schema
+mongoose.connect(mongoURI)
+    .then(() => console.log('✅ DATABASE: MongoDB Compass sudah terhubung!'))
+    .catch(err => console.log('❌ DATABASE: Gagal konek!', err.message));
+
 const Message = mongoose.model('Message', new mongoose.Schema({
-    name: String,
-    email: String,
-    message: String,
+    name: String, email: String, message: String,
     date: { type: Date, default: Date.now }
 }));
 
-// Route Simpan & Kirim Email
 app.post(['/', '/api/contact'], async (req, res) => {
+    // CEK KONEKSI
+    if (mongoose.connection.readyState !== 1) {
+        return res.status(503).json({
+            success: false,
+            message: 'DATABASE MATI. Cek terminal VS Code kamu, tulisannya MERAH atau HIJAU?'
+        });
+    }
+
     try {
         const { name, email, message } = req.body;
+        await new Message({ name, email, message }).save();
+        console.log('✅ Pesan tersimpan di Compass!');
 
-        if (!name || !email || !message) {
-            return res.status(400).json({ success: false, message: 'Harap isi semua kolom!' });
-        }
-
-        // 1. Simpan ke MongoDB Compass
-        const newMessage = new Message({ name, email, message });
-        await newMessage.save();
-        console.log(`✅ Pesan dari ${name} masuk ke Compass!`);
-
-        // 2. Kirim Notifikasi ke Email Risma
         const transporter = nodemailer.createTransport({
             service: 'gmail',
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            }
+            auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
         });
 
-        const mailOptions = {
+        transporter.sendMail({
             from: process.env.EMAIL_USER,
-            to: process.env.EMAIL_RECEIVER,
-            subject: `Pesan Baru Portofolio: ${name}`,
-            text: `Halo Risma,\n\nAda pesan baru masuk:\nNama: ${name}\nEmail: ${email}\nPesan: ${message}`
-        };
+            to: process.env.EMAIL_RECEIVER || 'rismaamaliaputri366@gmail.com',
+            subject: `Pesan Baru: ${name}`,
+            text: `Nama: ${name}\nEmail: ${email}\nPesan: ${message}`
+        }).catch(e => console.log('⚠️ Email eror (Abaikan):', e.message));
 
-        // Kirim email di background
-        transporter.sendMail(mailOptions, (err) => {
-            if (err) console.log('⚠️ Email error:', err.message);
-            else console.log('📧 Email notifikasi sudah dikirim ke Risma!');
-        });
-
-        res.status(200).json({ success: true, message: 'Berhasil! Pesan tersimpan di Compass dan terkirim ke Email.' });
-    } catch (error) {
-        console.error('❌ Error API:', error.message);
-        res.status(500).json({ success: false, message: error.message });
+        res.status(200).json({ success: true, message: 'BERHASIL! Pesan masuk ke Compass dan Email.' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Gagal: ' + err.message });
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`🚀 Server Risma Jalan di http://localhost:${PORT}`);
-});
+app.listen(PORT, () => console.log(`🚀 Server Portfolio: http://localhost:${PORT}`));
