@@ -4,7 +4,7 @@ const cors = require('cors');
 const nodemailer = require('nodemailer');
 const path = require('path');
 
-// Load environment variables
+// FORCE LOAD ENV
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 const app = express();
@@ -13,7 +13,9 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// Skema Pesan
+console.log('--- INI VERSI MONGODB TERBARU ---');
+
+// Schema
 const Message = mongoose.model('Message', new mongoose.Schema({
     name: String,
     email: String,
@@ -21,32 +23,10 @@ const Message = mongoose.model('Message', new mongoose.Schema({
     date: { type: String, default: () => new Date().toLocaleString("id-ID") }
 }));
 
-// Fungsi Kirim Email (Pisah agar tidak ganggu DB)
-async function notifyEmail(name, email, message) {
-    try {
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
-        });
-        await transporter.sendMail({
-            from: process.env.EMAIL_USER,
-            to: process.env.EMAIL_RECEIVER || 'rismaamaliaputri366@gmail.com',
-            subject: `Pesan Portofolio dari ${name}`,
-            text: `Nama: ${name}\nEmail: ${email}\nPesan: ${message}`
-        });
-        console.log('📧 Email terkirim!');
-    } catch (e) {
-        console.warn('⚠️ Gagal kirim email:', e.message);
-    }
-}
-
+// Route
 app.post(['/', '/api/contact'], async (req, res) => {
-    // PROTEKSI: Cek koneksi SEBELUM simpan
     if (mongoose.connection.readyState !== 1) {
-        return res.status(503).json({
-            success: false,
-            message: 'DATABASE BELUM SIAP. Klik "Send" lagi dalam 3 detik atau cek apakah MongoDB sudah jalan di laptop kamu.'
-        });
+        return res.status(503).json({ success: false, message: 'MongoDB Belum Konek! Tunggu sebentar.' });
     }
 
     try {
@@ -54,32 +34,38 @@ app.post(['/', '/api/contact'], async (req, res) => {
         const msg = new Message({ name, email, message });
         await msg.save();
 
-        console.log('✅ Pesan masuk ke MongoDB!');
-        notifyEmail(name, email, message); // Jalankan di background
+        // Email notify
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+        });
+        transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: process.env.EMAIL_RECEIVER || 'rismaamaliaputri366@gmail.com',
+            subject: `Pesan Portofolio: ${name}`,
+            text: `Nama: ${name}\nEmail: ${email}\nPesan: ${message}`
+        }).catch(e => console.log('Email Error (abaikan jika DB sukses):', e.message));
 
-        res.status(201).json({ success: true, message: 'Berhasil! Pesan sudah tersimpan.' });
+        res.status(201).json({ success: true, message: 'BERHASIL! Pesan tersimpan di MongoDB.' });
     } catch (err) {
-        res.status(500).json({ success: false, message: 'Gagal simpan: ' + err.message });
+        res.status(500).json({ success: false, message: err.message });
     }
 });
 
-// KONEKSI AGRESIF
-const connectWithRetry = () => {
-    console.log('📡 Sedang berjuang konek ke MongoDB...');
-    // Coba pake localhost tanpa DNS (127.0.0.1)
+// Connection Logic
+const connectDB = () => {
     mongoose.connect('mongodb://127.0.0.1:27017/portofolio', {
         serverSelectionTimeoutMS: 5000,
     }).then(() => {
-        console.log('🎉 AKHIRNYA KONEK! MongoDB sudah siap, Risma!');
+        console.log('✅ DATABASE TERKONEKSI: Risma, MONGODB kamu sudah siap!');
     }).catch(err => {
-        console.error('❌ Masih gagal konek:', err.message);
-        console.log('🔄 Mencoba lagi dalam 5 detik...');
-        setTimeout(connectWithRetry, 5000);
+        console.error('❌ Gagal konek ke MongoDB:', err.message);
+        setTimeout(connectDB, 5000);
     });
 };
 
-connectWithRetry();
+connectDB();
 
 app.listen(PORT, () => {
-    console.log(`🚀 Server Portfolio jalan di http://localhost:${PORT}`);
+    console.log(`🚀 Server Risma Jalan di http://localhost:${PORT}`);
 });
