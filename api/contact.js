@@ -13,8 +13,6 @@ const PORT = process.env.PORT || 5001;
 app.use(cors());
 app.use(express.json());
 
-console.log('--- INI VERSI MONGODB TERBARU ---');
-
 // Schema
 const Message = mongoose.model('Message', new mongoose.Schema({
     name: String,
@@ -26,7 +24,10 @@ const Message = mongoose.model('Message', new mongoose.Schema({
 // Route
 app.post(['/', '/api/contact'], async (req, res) => {
     if (mongoose.connection.readyState !== 1) {
-        return res.status(503).json({ success: false, message: 'MongoDB Belum Konek! Tunggu sebentar.' });
+        return res.status(503).json({
+            success: false,
+            message: 'MongoDB Belum Konek! Sabar Risma, laptop kamu lagi usaha nyambungin...'
+        });
     }
 
     try {
@@ -44,28 +45,38 @@ app.post(['/', '/api/contact'], async (req, res) => {
             to: process.env.EMAIL_RECEIVER || 'rismaamaliaputri366@gmail.com',
             subject: `Pesan Portofolio: ${name}`,
             text: `Nama: ${name}\nEmail: ${email}\nPesan: ${message}`
-        }).catch(e => console.log('Email Error (abaikan jika DB sukses):', e.message));
+        }).catch(e => console.log('Email Gagal (DB Sukses):', e.message));
 
-        res.status(201).json({ success: true, message: 'BERHASIL! Pesan tersimpan di MongoDB.' });
+        res.status(201).json({ success: true, message: 'AKHIRNYA JADI! Pesan masuk ke MongoDB.' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
 });
 
-// Connection Logic
-const connectDB = () => {
-    mongoose.connect('mongodb://127.0.0.1:27017/portofolio', {
-        serverSelectionTimeoutMS: 5000,
-    }).then(() => {
-        console.log('✅ DATABASE TERKONEKSI: Risma, MONGODB kamu sudah siap!');
-    }).catch(err => {
-        console.error('❌ Gagal konek ke MongoDB:', err.message);
-        setTimeout(connectDB, 5000);
-    });
+// KONEKSI CERDAS: Coba localhost dulu, kalo gagal coba 127.0.0.1
+const connectDB = async () => {
+    const uris = [
+        'mongodb://localhost:27017/portofolio',
+        'mongodb://127.0.0.1:27017/portofolio'
+    ];
+
+    for (let uri of uris) {
+        try {
+            console.log(`📡 Mencoba konek ke: ${uri}...`);
+            await mongoose.connect(uri, { serverSelectionTimeoutMS: 3000 });
+            console.log('✅ BERHASIL! MongoDB kamu sudah terhubung sekarang Risma!');
+            return;
+        } catch (err) {
+            console.log(`❌ Gagal pake ${uri}`);
+        }
+    }
+
+    console.log('🔄 Belum dapet nih, nyoba lagi dalam 5 detik...');
+    setTimeout(connectDB, 5000);
 };
 
 connectDB();
 
 app.listen(PORT, () => {
-    console.log(`🚀 Server Risma Jalan di http://localhost:${PORT}`);
+    console.log(`🚀 Server on http://localhost:${PORT}`);
 });
